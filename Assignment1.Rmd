@@ -88,8 +88,10 @@ scaling
 
 # helped by this example: https://www.youtube.com/watch?v=IX0QvffX9n0&ab_channel=stikpet
 
+df$Color <- ifelse(1:nrow(df) <= 5, "grey", "red")
+
 plot <- ggplot(df, aes(x = County)) + # x axis is the Counties
-  geom_col(aes(y = Reduced.Lunch), fill = "red") + # first y axis is the count of Reduced Lunch for each county
+  geom_col(aes(y = Reduced.Lunch, fill = Color)) + # first y axis is the count of Reduced Lunch for each county
   geom_point(aes(y = cumRL)) + # the points on the plot for the cumulation of students in the state who receive reduced lunch
   geom_path(aes(y = cumRL), group = 1, color = "black", linewidth = 0.7) + # the line of cumulation
   scale_y_continuous(sec.axis = sec_axis(transform = ~.*0.001298786, # creating the second y-axis with the correct scaling
@@ -101,7 +103,9 @@ plot <- ggplot(df, aes(x = County)) + # x axis is the Counties
   theme_bw() + # theme for plot
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), # making the x-axis readable
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(), # making everything blank!
-        panel.background = element_blank())
+        panel.background = element_blank(),
+        legend.position = "none") +
+  scale_fill_manual(values = c("red", "grey"))
 
 # printing plot
 plot
