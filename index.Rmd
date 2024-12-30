@@ -1,0 +1,40 @@
+---
+title: "My Dashboard for DACSS 690V"
+output: 
+  flexdashboard::flex_dashboard
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard) # always
+library(png)
+```
+
+## Sidebar {.sidebar}
+
+The data I used was provided to me by Professor Reyes for this assignment.
+
+
+Preparing the dashboard based on the instructions given at @magallanes_reyes_data_2022 and @aden-buie_flexdashboard_2023.
+
+## Column {.tabset .tabset-fade}
+
+
+### Assignment #1
+
+```{r}
+
+# saving the plot
+plot <- readRDS(file = "Assignment1.rds")
+
+# printing
+print(plot)
+
+```
+
+
+### References 
+**Assignment 1**
+
+- [Data](https://dacss-visual.github.io/tabular_univar_num/)
+- [RPubs](https://rpubs.com/dav1d00/ggpareto)
+- [Pareto Chart Video](https://www.youtube.com/watch?v=IX0QvffX9n0&ab_channel=stikpet)

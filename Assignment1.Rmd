@@ -1,0 +1,117 @@
+---
+title: "Assignment1"
+output: html_document
+date: "2024-12-29"
+---
+
+```{r}
+
+library(dplyr)
+library(ggplot2)
+
+```
+
+
+```{r}
+
+rm(list = ls()) # clean memory
+
+location='https://github.com/DACSS-Visual/tabular_univar_cat/raw/main/data/'
+file='eduwa.rda'
+link=paste0(location,file)
+
+
+# getting the data TABLE from the file in the cloud:
+load(file=url(link))
+
+```
+
+```{r}
+
+# looking at the dimension
+dim(eduwa)
+
+```
+
+```{r}
+
+# viewing the names of each column
+names(eduwa)
+
+```
+
+```{r}
+
+# helped by this example: https://rpubs.com/dav1d00/ggpareto
+
+# creating a new df
+df <- eduwa %>% 
+  select(County, Reduced.Lunch) %>%  # only keeping columns I want
+  na.omit() # removing NAs
+
+# summing reduced lunches by each county
+df <- summarise_all(group_by(df, County), sum)
+
+df <- df %>% 
+  arrange(desc(Reduced.Lunch)) # arranging by reduced lunch
+
+# making the counties ordered
+df$County <- ordered(df$County, levels = unlist(df$County, use.names = F))
+
+# viewing df
+df
+
+```
+
+```{r}
+
+
+df <- df %>%
+  mutate(cumRL = cumsum(Reduced.Lunch), # adding a column for the cumulative sums
+         percentage = round((cumRL / sum(df$Reduced.Lunch)) * 100, digits = 2)) # adding a column for the cumulative percentage
+
+# viewing the df
+df
+
+```
+
+
+```{r}
+
+# getting the right scaling for the second y-axis
+scaling <- 100 / max(df$cumRL)
+scaling
+
+```
+
+```{r}
+
+# helped by this example: https://www.youtube.com/watch?v=IX0QvffX9n0&ab_channel=stikpet
+
+plot <- ggplot(df, aes(x = County)) + # x axis is the Counties
+  geom_col(aes(y = Reduced.Lunch), fill = "red") + # first y axis is the count of Reduced Lunch for each county
+  geom_point(aes(y = cumRL)) + # the points on the plot for the cumulation of students in the state who receive reduced lunch
+  geom_path(aes(y = cumRL), group = 1, color = "black", linewidth = 0.7) + # the line of cumulation
+  scale_y_continuous(sec.axis = sec_axis(trans = ~.*0.001298786, # creating the second y-axis with the correct scaling
+                                         name = "Cumulative (%)", # name of second y-axis
+                                         breaks = seq(0, 100, by = 25))) + # how the axis numbers will be shown
+  labs(title = "Pareto Plot, Reduced Lunch by County", # title
+       subtitle = "How many students receive reduced lunch in each county of Wyoming", # subtitle
+       y = "Reduced Lunch") + # first y-axis name
+  theme_bw() + # theme for plot
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), # making the x-axis readable
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(), # making everything blank!
+        panel.background = element_blank())
+
+# printing plot
+plot
+
+```
+
+```{r}
+
+# saving plot
+saveRDS(plot, file = "Assignment1.rds")
+
+```
+
