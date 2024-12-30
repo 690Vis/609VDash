@@ -1,38 +1,47 @@
 ---
-title: "My Dashboard for DACSS 690V"
+title: "My Storyboard at DACSS - tabs"
+bibliography: testVisual.bib
 output: 
   flexdashboard::flex_dashboard
 ---
 
 ```{r setup, include=FALSE}
 library(flexdashboard) # always
-library(png)
 ```
 
 ## Sidebar {.sidebar}
 
-The data I used was provided to me by Professor Reyes for this assignment.
 
-
-Preparing the dashboard based on the instructions given at @magallanes_reyes_data_2022 and @aden-buie_flexdashboard_2023.
+Preparing the dashboard based on the instructions given at @magallanes_reyes_data_2022, and @aden-buie_flexdashboard_2023.
 
 ## Column {.tabset .tabset-fade}
 
 
-### Assignment #1
+### Worst barplot
 
 ```{r}
+readRDS("del1Draft.rds")
+```
 
-plot <- readRDS(file = "Assignment1.rds")
 
-print(plot)
+### Worst histogram
 
+```{r}
+readRDS("del2Draft.rds")
+```
+
+### Worst scatterplot
+
+```{r}
+readRDS("del3Draft.rds")
+```
+
+
+### Worst map
+
+```{r}
+readRDS("del4Draft.rds")
 ```
 
 
 ### References 
-**Assignment 1**
-
-- [Data](https://dacss-visual.github.io/tabular_univar_num/)
-- [RPubs](https://rpubs.com/dav1d00/ggpareto)
-- [Pareto Chart Video](https://www.youtube.com/watch?v=IX0QvffX9n0&ab_channel=stikpet)

@@ -92,11 +92,11 @@ plot <- ggplot(df, aes(x = County)) + # x axis is the Counties
   geom_col(aes(y = Reduced.Lunch), fill = "red") + # first y axis is the count of Reduced Lunch for each county
   geom_point(aes(y = cumRL)) + # the points on the plot for the cumulation of students in the state who receive reduced lunch
   geom_path(aes(y = cumRL), group = 1, color = "black", linewidth = 0.7) + # the line of cumulation
-  scale_y_continuous(sec.axis = sec_axis(trans = ~.*0.001298786, # creating the second y-axis with the correct scaling
+  scale_y_continuous(sec.axis = sec_axis(transform = ~.*0.001298786, # creating the second y-axis with the correct scaling
                                          name = "Cumulative (%)", # name of second y-axis
                                          breaks = seq(0, 100, by = 25))) + # how the axis numbers will be shown
-  labs(title = "Pareto Plot, Reduced Lunch by County", # title
-       subtitle = "How many students receive reduced lunch in each county of Wyoming", # subtitle
+  labs(title = "Five Washington Counties Account for 80% of Reduced Lunch Recipients", # title
+       subtitle = "How many students receive reduced lunch in each county of Washington", # subtitle
        y = "Reduced Lunch") + # first y-axis name
   theme_bw() + # theme for plot
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), # making the x-axis readable

@@ -1,5 +1,6 @@
 ---
-title: "My Dashboard for DACSS 690V"
+title: "Rubi's Dashboard for DACSS 690V"
+bibliography: testVisual.bib
 output: 
   flexdashboard::flex_dashboard
 ---
@@ -14,14 +15,14 @@ library(png)
 The data I used was provided to me by Professor Reyes for this assignment.
 
 
-Preparing the dashboard based on the instructions given at @magallanes_reyes_data_2022 and @aden-buie_flexdashboard_2023.
+Preparing the dashboard based on the instructions given at @magallanes_reyes_data_2022 and @aden-buie_flexdashboard_2024.
 
 ## Column {.tabset .tabset-fade}
 
 
 ### Assignment #1
 
-```{r}
+```{r, fig.width=8, fig.height=6}
 
 # saving the plot
 plot <- readRDS(file = "Assignment1.rds")
