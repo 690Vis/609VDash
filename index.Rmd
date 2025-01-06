@@ -32,6 +32,17 @@ print(plot)
 
 ```
 
+### Assignment #2
+
+```{r, fig.width = 8, fig.height = 6}
+
+# saving the plot
+plot2 <- readRDS(file = "Assignment2.rds")
+
+# printing
+print(plot2)
+
+```
 
 ### References 
 **Assignment 1**

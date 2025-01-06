@@ -1,0 +1,195 @@
+---
+title: 'Assignment #2'
+output: html_document
+date: "2025-01-04"
+---
+
+```{r}
+
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+
+```
+
+
+```{r}
+
+linkMass = "https://github.com/DACSS-Visual/tabular_bivar_catcat/raw/refs/heads/main/data/MSP%20DFS%20Arrests%2019-20Q1.xlsx"
+
+#see it
+library(rio)
+
+arrests = rio::import(linkMass,which = 1)
+
+head(arrests)
+
+```
+
+```{r}
+
+dim(arrests)
+
+```
+
+
+```{r}
+
+names(arrests)
+
+```
+
+```{r}
+
+arrests <- arrests %>% 
+  rename_with(~ gsub(" ", "_", .x), contains(" "))
+
+names(arrests)
+
+```
+
+```{r}
+
+arrests <- arrests[!is.na(arrests$Age), ]
+
+summary(arrests$Age)
+
+```
+
+```{r}
+
+table(arrests['Arrest_Type'])
+
+```
+
+
+
+```{r}
+
+arrests <- arrests %>% 
+  mutate(Arrest_Type = recode(Arrest_Type, 
+                              "F" = "Felony",
+                              "J" = "Juvenile",
+                              "M" = "Misdemeanor",
+                              "W" = "Warrant",
+                              "O" = "Other"))
+
+head(arrests)
+
+```
+
+```{r}
+
+arrestType_age <- aggregate(data = arrests,
+                            Age ~ Arrest_Type,
+                            FUN = function(x)
+                              c(min = min(x),
+                                med = median(x),
+                                max = max(x)))
+
+arrestType_age <- do.call(data.frame, arrestType_age)
+
+arrestType_age
+
+```
+
+```{r}
+
+names(arrestType_age) = c("Arrest_Type", "Minimum", "Median", "Maximum")
+
+```
+
+
+```{r}
+
+arrestType_age_long <- reshape2::melt(arrestType_age, 
+                                      variable.name = "stats",
+                                      value.name = "Age",
+                                      id.vars = "Arrest_Type")
+
+arrestType_age_long
+
+```
+
+```{r}
+
+levels(arrestType_age_long$stats)
+
+```
+
+
+```{r}
+
+plot <- ggplot(data = arrestType_age_long,
+               aes(x = Arrest_Type)) +
+  geom_point(aes(y = Age, fill = stats),
+             stat = "identity",
+             show.legend = F) +
+  geom_text(size = 3.5, hjust = -0.5,
+            aes(y = Age,
+                label = round(Age, 1),
+                colour = stats),
+            show.legend = F,
+            fontface = "bold") +
+  geom_segment(aes(y = 0, x = Arrest_Type,
+                   xend = Arrest_Type,
+                   yend = Age),
+               color = "black") +
+  scale_colour_manual(values = c("blue", "black", "red")) +
+  facet_grid(~stats) +
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 85)) +
+  labs(title = "Of arrest types, felony has the youngest age cohort in Massachusetts", # title
+       subtitle = "The minimum, median, and maximum of each arrest type", # subtitle
+       caption = "Source: Mass.gov",
+       y = "Age",
+       x = "Arrest Types") +
+  theme_bw()
+
+plot
+
+```
+
+```{r}
+
+# saving plot
+saveRDS(plot, file = "Assignment2.rds")
+
+```
+
+```{r}
+
+# linkCovid="https://github.com/DACSS-Visual/tabular_bivar_numnum/raw/refs/heads/main/data/covid-19-cases-deaths-per-million-people.csv"
+# 
+# #see it
+# covidWorld = read.csv(linkCovid)
+# 
+# str(covidWorld)
+
+```
+
+```{r}
+
+# covidWorld_top <- covidWorld %>% 
+#   filter(Entity == "United States" | Entity == "India" | Entity == "France" | Entity == "Germany" | Entity == "Brazil"
+#          & year == "2021")
+#   
+# 
+# covidWorld_top
+
+```
+
+```{r}
+
+# base <- ggplot(covidWorld_top, aes(x = daily_deaths_mean, y = daily_cases_mean)) +
+#   stat_density_2d(aes(fill = ..density..),
+#                   geom = "raster", contour = F, show.legend = F) +
+#   scale_fill_distiller(palette = "Greys", direction = 1) +
+#   geom_text_repel(aes(label = Entity), color = 'white', fontface = 'bold', bg.color = "black", bg.r = .15) + 
+#     scale_y_continuous(expand = c(0, 0), transform = 'log10') + 
+#     scale_x_continuous(expand = c(0, 0)) 
+# 
+# base
+
+```
+
