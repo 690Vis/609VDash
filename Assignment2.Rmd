@@ -120,6 +120,14 @@ levels(arrestType_age_long$stats)
 
 ```{r}
 
+arrestType_age_long$Arrest_Type <- factor(arrestType_age_long$Arrest_Type, levels = c("Other", "Warrant", "Misdemeanor",
+                                                                                      "Felony"))
+
+```
+
+
+```{r}
+
 plot <- ggplot(data = arrestType_age_long,
                aes(x = Arrest_Type)) +
   geom_point(aes(y = Age, fill = stats),
@@ -139,8 +147,8 @@ plot <- ggplot(data = arrestType_age_long,
   facet_grid(~stats) +
   coord_flip() +
   scale_y_continuous(limits = c(0, 85)) +
-  labs(title = "Of arrest types, felony has the youngest age cohort in Massachusetts", # title
-       subtitle = "The minimum, median, and maximum of each arrest type", # subtitle
+  labs(title = "Of arrest types, felony has the youngest age cohort", # title
+       subtitle = "The minimum, median, and maximum of each arrest type in Massachusetts (2019-2020)", # subtitle
        caption = "Source: Mass.gov",
        y = "Age",
        x = "Arrest Types") +
@@ -154,42 +162,6 @@ plot
 
 # saving plot
 saveRDS(plot, file = "Assignment2.rds")
-
-```
-
-```{r}
-
-# linkCovid="https://github.com/DACSS-Visual/tabular_bivar_numnum/raw/refs/heads/main/data/covid-19-cases-deaths-per-million-people.csv"
-# 
-# #see it
-# covidWorld = read.csv(linkCovid)
-# 
-# str(covidWorld)
-
-```
-
-```{r}
-
-# covidWorld_top <- covidWorld %>% 
-#   filter(Entity == "United States" | Entity == "India" | Entity == "France" | Entity == "Germany" | Entity == "Brazil"
-#          & year == "2021")
-#   
-# 
-# covidWorld_top
-
-```
-
-```{r}
-
-# base <- ggplot(covidWorld_top, aes(x = daily_deaths_mean, y = daily_cases_mean)) +
-#   stat_density_2d(aes(fill = ..density..),
-#                   geom = "raster", contour = F, show.legend = F) +
-#   scale_fill_distiller(palette = "Greys", direction = 1) +
-#   geom_text_repel(aes(label = Entity), color = 'white', fontface = 'bold', bg.color = "black", bg.r = .15) + 
-#     scale_y_continuous(expand = c(0, 0), transform = 'log10') + 
-#     scale_x_continuous(expand = c(0, 0)) 
-# 
-# base
 
 ```
 
