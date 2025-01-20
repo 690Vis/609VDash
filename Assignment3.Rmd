@@ -1,0 +1,236 @@
+---
+title: "Assignment3"
+output: html_document
+date: "2025-01-19"
+---
+
+```{r}
+
+library(sf)
+library(ggplot2)
+library(dplyr)
+
+```
+
+
+```{r}
+
+linkBoston = "https://github.com/DACSS-Visual/SpatialData/raw/refs/heads/main/data/BostonContrib.xlsx"
+
+bostonCont = rio::import(linkBoston)
+
+# view
+head(bostonCont)
+
+```
+
+```{r}
+
+str(bostonCont)
+
+```
+
+```{r}
+
+summary(bostonCont$Amount)
+
+```
+
+
+```{r}
+
+tapply(bostonCont$Amount, bostonCont$`Tender Type Description`, summary)
+
+```
+
+```{r}
+
+linkZips = 'https://raw.githubusercontent.com/DACSS-Visual/SpatialData/refs/heads/main/data/zip_codes.json'
+
+bostonZips = sf::read_sf(linkZips)
+
+# view
+head(bostonZips)
+```
+
+
+```{r}
+
+plot(bostonZips[2])
+
+```
+
+```{r}
+
+base = ggplot(data = bostonZips) # map to use
+
+base + geom_sf(fill='black') 
+
+```
+
+```{r}
+
+#table(bostonCont$Amount, bostonCont$`Tender Type Description`)
+
+```
+
+```{r}
+
+occ <- table(bostonCont$Occupation)
+
+top_values <- sort(occ, decreasing = T)[1:5]
+
+top_values
+
+```
+
+```{r}
+
+bostonCont_new <- bostonCont[bostonCont$`Tender Type Description` %in% c("Check", "Credit Card") &
+                               bostonCont$Occupation  %in% c("Attorney", "Consultant"), ]
+
+#table(bostonCont_new$Amount, bostonCont_new$`Tender Type Description`)
+
+```
+
+```{r}
+
+bostonCont_agg <- bostonCont_new %>% 
+  group_by(Zip, `Tender Type Description`, Occupation) %>%
+                        summarise_at(vars(Amount),
+                                     list(counts = length,
+                                          amountPerCap = mean))
+
+head(bostonCont_agg)
+
+```
+
+
+```{r}
+
+bostonCont_agg <- bostonCont_agg %>% 
+  group_by(Zip, `Tender Type Description`, Occupation) %>% 
+  mutate(percentage = counts / sum(counts) * 100)
+
+
+bostonCont_agg$counts = NULL
+
+```
+
+```{r}
+head(bostonCont_agg)
+```
+
+
+```{r}
+
+bostonZip_map <- merge(bostonZips, bostonCont_agg,
+                       by.x = "ZIP5",
+                       by.y = "Zip")
+
+head(bostonZip_map)
+
+```
+
+```{r}
+
+base = ggplot() + theme_void() 
+base + geom_sf(data = bostonZip_map,
+               aes(fill = amountPerCap)) + 
+       scale_fill_viridis_c(direction = -1,
+                            na.value = 'red') + # missing in red?
+       facet_grid(`Tender Type Description` ~ Occupation) +
+       labs(fill = 'Amount Given to Recipient') 
+
+```
+
+```{r}
+
+do.call(data.frame,aggregate(data = bostonZip_map,
+                             amountPerCap ~ `Tender Type Description` + Occupation, fivenum))
+
+```
+
+```{r}
+
+ggplot(bostonZip_map)+ aes(x = amountPerCap) + geom_density() + facet_wrap(~`Tender Type Description` + Occupation, ncol = 1) +
+  scale_x_log10()
+
+```
+
+```{r}
+
+customCuts = c(0, 100, 250, 500, 1100)
+
+```
+
+```{r}
+
+bostonZip_map$amount_perCap_cat = cut(bostonZip_map$amountPerCap,
+                                          breaks = customCuts, include.lowest = F,
+                                          dig.lab = 5)
+#
+#
+# see the distribution
+table(bostonZip_map$amount_perCap_cat, bostonZip_map$`Tender Type Description`, bostonZip_map$Occupation)
+
+```
+
+```{r}
+
+labelLevels = c("up to 100", "101 to 250", "251 to 500", 'More than 500')
+
+bostonZip_map$amount_perCap_catLabel = bostonZip_map$amount_perCap_cat
+
+levels(bostonZip_map$amount_perCap_catLabel) = labelLevels
+
+head(bostonZip_map$amount_perCap_catLabel, 10)
+
+```
+
+```{r}
+
+zipInterest = c("up to 100",'More than 500')
+
+bostonZip_map_SUB = bostonZip_map[bostonZip_map$amount_perCap_catLabel %in% zipInterest, ]
+
+#bostonZip_map_trans <- st_transform(bostonZip_map, crs = 26986)
+#bostonZip_map_SUB_trans <- st_transform(bostonZip_map_SUB, crs = 26986)
+
+```
+
+
+```{r}
+
+customColors = c("black", "grey80", "grey90","red")
+
+plot <- base + geom_sf(data = bostonZip_map,
+               aes(fill = amount_perCap_catLabel), color = NA) + 
+               labs(fill = "US $ PerCapita \nAreas with NO Info in white",
+                    title = 'Both Attorneys and Consultants were more likely \nto use Credit Cards for contributions over $500',
+                    subtitle = 'Boston zip boundaries, contributions in 2024',
+                    caption = "Source: Mass OCPF (https://www.ocpf.us/Home/Index)") +
+                    scale_fill_manual(values = customColors) +
+                        facet_grid(`Tender Type Description` ~ Occupation) +
+    theme(legend.position = "left") +
+  geom_sf_text(data = bostonZip_map_SUB,
+                 aes(label = ZIP5,
+                     color = amount_perCap_catLabel),
+               check_overlap = T,
+               size = 2,
+               nudge_x = 0.0165,
+               nudge_y = 0.012) +
+            scale_colour_manual(values = c("black", "red")) + 
+            guides(color = F)
+
+plot
+
+```
+
+```{r}
+
+# saving plot
+saveRDS(plot, file = "Assignment3.rds")
+
+```
+
